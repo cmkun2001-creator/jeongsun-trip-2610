@@ -243,54 +243,83 @@ var TRIP_PATH = "trips/jeongseon-2026";
   var UNITS = { person: "1인", car: "차 1대당", total: "전체 금액" };
   var KINDS = { est: "추정", quote: "판매가", actual: "확정" };
 
-  function seed() {
-    var s = { settings: { people: 4, cars: 1 }, slots: {}, costs: {}, checks: {} };
+  /* 일정 버전 2 (10/13 변경): 금 워터월드·카지노, 토 ATV·서바이벌·영월·정선5일장 */
+  var SCHEDULE_VERSION = 2;
+  function scheduleV2() {
+    var out = {};
     [
-      ["fri", "08:00", "10:30", "서울 출발 → 영월", "", "move", ""],
-      ["fri", "10:30", "11:30", "청령포", "단종 유배지, 배 타고 들어가요", "act", "opt"],
-      ["fri", "11:30", "13:00", "점심", "동강다슬기(다슬기해장국) 또는 박가네(나물밥 정식)", "food", ""],
-      ["fri", "13:00", "14:00", "카페", "별애별빵1984", "rest", ""],
-      ["fri", "14:00", "16:00", "ATV + 서바이벌", "가지오래프팅 · 영월 동강", "act", "must"],
-      ["fri", "16:00", "17:00", "하이원으로 이동", "1시간 안팎", "move", ""],
-      ["fri", "17:00", "18:30", "장보기 → 콘도 입실", "씻고 쉬기", "rest", ""],
+      ["fri", "08:30", "11:30", "서울 출발 → 고한", "금요일 아침이라 3시간 잡았어요", "move", ""],
+      ["fri", "11:30", "12:30", "점심", "함백산돌솥밥 · 곤드레 돌솥밥, 11시 오픈", "food", ""],
+      ["fri", "12:30", "13:30", "카페", "상상초콜릿 (고한) · 수제 마카롱·감자빵", "rest", ""],
+      ["fri", "13:30", "17:00", "하이원 워터월드", "실내 10:00~17:00 · 실외 11:00~16:30", "act", "must"],
+      ["fri", "17:00", "18:30", "콘도 체크인 · 휴식", "씻고 쉬기", "rest", ""],
       ["fri", "18:30", "20:30", "카지노", "강원랜드 · 신분증 필수", "casino", "must"],
-      ["fri", "20:30", "22:00", "저녁", "함백산실비식당 · 소고기", "food", ""],
+      ["fri", "20:30", "22:00", "저녁", "함백산실비식당 · 소고기, 새벽 3시까지", "food", ""],
       ["fri", "22:00", "", "숙소 2차", "장본 술·안주", "drink", ""],
-      ["sat", "", "11:30", "늦잠", "", "rest", ""],
-      ["sat", "11:30", "12:30", "해장 점심", "함백산돌솥밥 · 곤드레 돌솥밥", "food", ""],
-      ["sat", "13:00", "17:00", "하이원 워터월드", "실내 10:00~17:00 · 실외 11:00~16:30", "act", "must"],
-      ["sat", "17:00", "19:00", "숙소 휴식", "카지노 2라운드는 원하는 사람만", "rest", ""],
-      ["sat", "19:00", "", "저녁 + 술파티", "숙소에서 장본 걸로, 또는 고한 고기마을(돼지고기)", "drink", ""],
+      ["sat", "", "10:00", "늦잠", "아침은 간단히", "rest", ""],
+      ["sat", "10:30", "11:30", "하이원 → 영월 동강", "1시간 안팎", "move", ""],
+      ["sat", "11:30", "13:30", "ATV + 서바이벌", "가지오래프팅 · 영월읍 동강로 576", "act", "must"],
+      ["sat", "13:45", "14:45", "점심", "동강다슬기(다슬기해장국) 또는 박가네(나물밥 정식)", "food", ""],
+      ["sat", "14:45", "15:30", "카페", "별애별빵1984 · 동강다슬기 옆", "rest", ""],
+      ["sat", "15:30", "16:30", "정선읍으로 이동", "", "move", ""],
+      ["sat", "16:30", "17:30", "정선아리랑시장 5일장", "17일 장날 · 18시까지 · 메밀전병·수수부꾸미 안주 사기", "act", ""],
+      ["sat", "17:30", "18:15", "하이원으로 복귀", "", "move", ""],
+      ["sat", "19:00", "", "숙소 술파티", "시장 안주 + 장본 술", "drink", ""],
       ["sun", "", "11:00", "늦잠 · 짐 정리 · 체크아웃", "", "rest", ""],
       ["sun", "11:30", "13:00", "점심", "메밀촌막국수 · 하이원 근처", "food", ""],
       ["sun", "13:00", "16:00", "서울 복귀", "", "move", ""]
     ].forEach(function (r, i) {
-      s.slots["s" + (i + 1)] = { day: r[0], start: r[1], end: r[2], title: r[3], sub: r[4], cat: r[5], flag: r[6] };
+      out["v2s" + (i + 1)] = { day: r[0], start: r[1], end: r[2], title: r[3], sub: r[4], cat: r[5], flag: r[6] };
     });
-    [
-      ["fri", "청령포 관람료", "영월 · 배 포함", 3000, "person", "est", ""],
-      ["fri", "영월 점심", "동강다슬기 / 박가네", 13000, "person", "est", ""],
-      ["fri", "카페", "별애별빵1984", 7000, "person", "est", ""],
-      ["fri", "ATV", "가지오래프팅", 40000, "person", "est", "업체별 3.5~5만원대, 예약 때 확인"],
-      ["fri", "서바이벌", "영월 동강", 25000, "person", "quote", "와그 동강 서바이벌 판매가"],
-      ["fri", "카지노 입장료", "강원랜드", 9000, "person", "est", "게임에 쓰는 돈은 제외"],
-      ["fri", "저녁 소고기 + 술", "함백산실비식당", 50000, "person", "est", ""],
-      ["fri", "장보기 (2박 술·안주)", "고한·사북 마트", 40000, "person", "est", ""],
-      ["sat", "해장 점심", "함백산돌솥밥", 15000, "person", "est", ""],
-      ["sat", "워터월드", "하이원 워터월드", 17200, "person", "quote", "와그 특가, 10/15(목)까지 판매"],
-      ["sun", "점심 막국수", "메밀촌막국수", 12000, "person", "est", ""],
-      ["shared", "숙소 (하이원 콘도 2박)", "예약한 총액을 넣어주세요", 0, "total", "actual", ""],
-      ["shared", "유류비", "", 70000, "car", "est", "왕복 약 480km, 연비 12km/L·리터당 1,700원 가정"],
-      ["shared", "고속도로 통행료", "왕복", 18000, "car", "est", ""]
-    ].forEach(function (r, i) {
-      var id = i === 11 ? "lodging" : "c" + (i + 1);
-      s.costs[id] = { day: r[0], name: r[1], place: r[2], amount: r[3], unit: r[4], kind: r[5], note: r[6], on: true, order: i + 1 };
+    return out;
+  }
+  /* 예전 일정(v1)이 저장돼 있으면 일정만 v2로 바꾸고, 비용은 날짜 구분만 옮겨요(금액은 그대로). */
+  function migrationUpdates(v) {
+    if (!v || (v.meta && v.meta.scheduleVersion >= SCHEDULE_VERSION)) return null;
+    var up = { slots: scheduleV2() }, costs = v.costs || {};
+    var moves = {
+      c9: { day: "fri", order: 1, name: "점심" }, c10: { day: "fri", order: 3 },
+      c4: { day: "sat", order: 20 }, c5: { day: "sat", order: 21 }, c2: { day: "sat", order: 22 }, c3: { day: "sat", order: 23 }
+    };
+    Object.keys(moves).forEach(function (id) {
+      if (costs[id]) Object.keys(moves[id]).forEach(function (f) { up["costs/" + id + "/" + f] = moves[id][f]; });
     });
+    if (costs.c1 && costs.c1.name === "청령포 관람료") up["costs/c1"] = null;
+    var checks = v.checks || {};
+    if (checks.k1 && /금 14시/.test(checks.k1.sub || "")) up["checks/k1/sub"] = checks.k1.sub.replace("금 14시", "토 11:30");
+    if (checks.k4 && /토 11:30/.test(checks.k4.sub || "")) up["checks/k4/sub"] = checks.k4.sub.replace("토 11:30", "금 11:30");
+    if (!costs.c15) up["costs/c15"] = { day: "fri", order: 2, name: "카페", place: "상상초콜릿 (고한)", amount: 7000, unit: "person", kind: "est", note: "", on: true };
+    up["meta/scheduleVersion"] = SCHEDULE_VERSION;
+    return up;
+  }
+
+  function seed() {
+    var s = { settings: { people: 4, cars: 1 }, slots: {}, costs: {}, checks: {} };
+    s.slots = scheduleV2();
     [
-      ["ATV + 서바이벌 예약", "가지오래프팅 033-374-9077 · 서바이벌만 따로 하면 동강래프팅 서바이벌 033-375-9400. 10월에도 둘 다 운영하는지, 금 14시 가능한지 확인", "2026-10-14"],
+      ["c9", "fri", 1, "점심", "함백산돌솥밥", 15000, "person", "est", ""],
+      ["c15", "fri", 2, "카페", "상상초콜릿 (고한)", 7000, "person", "est", ""],
+      ["c10", "fri", 3, "워터월드", "하이원 워터월드", 17200, "person", "quote", "와그 특가, 10/15(목)까지 판매"],
+      ["c6", "fri", 6, "카지노 입장료", "강원랜드", 9000, "person", "est", "게임에 쓰는 돈은 제외"],
+      ["c7", "fri", 7, "저녁 소고기 + 술", "함백산실비식당", 50000, "person", "est", ""],
+      ["c8", "fri", 8, "장보기 (2박 술·안주)", "고한·사북 마트", 40000, "person", "est", ""],
+      ["c4", "sat", 20, "ATV", "가지오래프팅", 40000, "person", "est", "업체별 3.5~5만원대, 예약 때 확인"],
+      ["c5", "sat", 21, "서바이벌", "영월 동강", 25000, "person", "quote", "와그 동강 서바이벌 판매가"],
+      ["c2", "sat", 22, "영월 점심", "동강다슬기 / 박가네", 13000, "person", "est", ""],
+      ["c3", "sat", 23, "카페", "별애별빵1984", 7000, "person", "est", ""],
+      ["c11", "sun", 30, "점심 막국수", "메밀촌막국수", 12000, "person", "est", ""],
+      ["lodging", "shared", 40, "숙소 (하이원 콘도 2박)", "예약한 총액을 넣어주세요", 0, "total", "actual", ""],
+      ["c13", "shared", 41, "유류비", "", 70000, "car", "est", "왕복 약 480km, 연비 12km/L·리터당 1,700원 가정"],
+      ["c14", "shared", 42, "고속도로 통행료", "왕복", 18000, "car", "est", ""]
+    ].forEach(function (r) {
+      s.costs[r[0]] = { day: r[1], order: r[2], name: r[3], place: r[4], amount: r[5], unit: r[6], kind: r[7], note: r[8], on: true };
+    });
+    s.meta = { scheduleVersion: SCHEDULE_VERSION };
+    [
+      ["ATV + 서바이벌 예약", "가지오래프팅 033-374-9077 · 서바이벌만 따로 하면 동강래프팅 서바이벌 033-375-9400. 10월에도 둘 다 운영하는지, 토 11:30 가능한지 확인", "2026-10-14"],
       ["워터월드 특가 티켓 구매", "와그 특가는 10/15(목)까지만 판매, 10/18까지 사용 가능", "2026-10-15"],
       ["함백산실비식당 예약", "금 20:30, 예약 권장 후기 있음", "2026-10-15"],
-      ["함백산돌솥밥 예약 문의", "토 11:30, 점심에 붐빔", "2026-10-16"],
+      ["함백산돌솥밥 예약 문의", "금 11:30, 점심에 붐빔", "2026-10-16"],
       ["숙소비 입력", "비용의 '숙소' 칸에 하이원 콘도 2박 총액을 넣으면 1인 비용에 반영돼요", "2026-10-15"]
     ].forEach(function (r, i) {
       s.checks["k" + (i + 1)] = { text: r[0], sub: r[1], due: r[2], done: false, order: i + 1 };
@@ -299,18 +328,19 @@ var TRIP_PATH = "trips/jeongseon-2026";
   }
 
   var PLACES = [
-    ["금 오후", "가지오래프팅", "ATV · 서바이벌 · 래프팅 · 영월읍 동강로 576 · 033-374-9077", "영월 가지오래프팅"],
-    ["금 오후 대안", "동강래프팅 서바이벌 게임장", "서바이벌 1시간 30분 · 영월읍 동강로 826 · 033-375-9400", "영월 동강로 826"],
-    ["금 오전", "청령포", "단종 유배지 · 영월군 남면", "영월 청령포"],
-    ["금 점심", "동강다슬기", "다슬기해장국 · 영월역 앞 · 저녁 7시 마감", "영월 동강다슬기"],
-    ["금 점심 대안", "박가네", "어수리·곤드레 나물밥 정식 · 영월읍 중앙로 149", "영월 박가네"],
-    ["금 카페", "별애별빵1984", "영월 대표 베이커리 카페", "영월 별애별빵1984"],
+    ["금 점심", "함백산돌솥밥", "곤드레 돌솥밥 · 생선구이 · 고한읍 · 033-591-5564", "고한 함백산돌솥밥"],
+    ["금 카페", "상상초콜릿", "수제 마카롱·초콜릿·감자빵 · 고한", "고한 상상초콜릿"],
+    ["금 오후", "하이원 워터월드", "사북읍 하이원길 175 · 1588-7789", "하이원 워터월드"],
     ["금 저녁", "강원랜드 카지노", "만 19세 이상 · 신분증 필수", "강원랜드 카지노"],
-    ["금 저녁", "함백산실비식당", "소고기 · 늦은 저녁 가능 · 고한읍", "고한 함백산실비식당"],
-    ["토 점심", "함백산돌솥밥", "곤드레 돌솥밥 · 생선구이 · 고한읍", "고한 함백산돌솥밥"],
-    ["토 오후", "하이원 워터월드", "사북읍 하이원길 175 · 1588-7789", "하이원 워터월드"],
+    ["금 저녁", "함백산실비식당", "소고기 · 새벽 3시까지 · 고한읍 · 033-591-0070", "고한 함백산실비식당"],
+    ["토 오전", "가지오래프팅", "ATV · 서바이벌 · 영월읍 동강로 576 · 033-374-9077", "영월 가지오래프팅"],
+    ["토 오전 대안", "동강래프팅 서바이벌 게임장", "서바이벌 1시간 30분 · 영월읍 동강로 826 · 033-375-9400", "영월 동강로 826"],
+    ["토 점심", "동강다슬기", "다슬기해장국 · 영월역 앞 · 저녁 7시 반까지", "영월 동강다슬기"],
+    ["토 점심 대안", "박가네", "어수리·곤드레 나물밥 정식 · 영월읍 중앙로 149", "영월 박가네"],
+    ["토 카페", "별애별빵1984", "영월 대표 베이커리 카페 · 동강다슬기 옆", "영월 별애별빵1984"],
+    ["토 오후", "정선아리랑시장 (5일장)", "2·7일 장날 · 09:00~18:00 · 정선읍 5일장길 40", "정선아리랑시장"],
     ["토 저녁 대안", "고기마을", "돼지고기 구이 · 고한읍", "고한 고기마을"],
-    ["일 점심", "메밀촌막국수", "넷플릭스 먹보와 털보에 나온 막국수집", "정선 메밀촌막국수"]
+    ["일 점심", "메밀촌막국수", "넷플릭스 먹보와 털보에 나온 막국수집 · 033-591-3939", "정선 메밀촌막국수"]
   ];
   var PACK = [
     ["카지노", "신분증, 현금"],
@@ -328,7 +358,7 @@ var TRIP_PATH = "trips/jeongseon-2026";
   var OUTFIT = {
     atv: {
       title: "ATV 복장",
-      lead: "금요일 오후 2~4시, 영월은 20°C 안팎이에요. 달리면 바람 때문에 더 쌀쌀하게 느껴져요.",
+      lead: "토요일 오전 11시 반~1시 반, 영월은 20°C 안팎에 점점 흐려져요. 달리면 바람 때문에 더 쌀쌀하게 느껴져요.",
       items: [
         ["긴팔 · 긴바지", "흙먼지와 튀는 돌을 막아줘요. 얇은 바람막이를 하나 겹쳐 입으면 딱 좋아요."],
         ["선글라스 · 버프나 마스크", "비포장길이라 먼지가 많이 날려요. 헬멧은 업체에서 줘요."],
@@ -348,9 +378,9 @@ var TRIP_PATH = "trips/jeongseon-2026";
     },
     after: {
       title: "끝나고 챙길 것",
-      lead: "ATV·서바이벌 끝나고 하이원까지 차로 1시간, 저녁엔 카지노예요.",
+      lead: "ATV·서바이벌 끝나고 바로 영월에서 점심, 카페, 정선 장날 구경까지 이어져요.",
       items: [
-        ["갈아입을 옷 한 벌", "흙·땀·페인트 묻은 옷 그대로 카지노는 곤란해요."],
+        ["갈아입을 옷 한 벌", "흙·땀·페인트 묻은 옷 그대로 식당과 시장을 돌기는 곤란해요."],
         ["물티슈 · 비닐봉투", "더러워진 옷과 신발을 담아 두세요."],
         ["일요일 우산", "복귀하는 날 비 예보가 있어요."]
       ]
@@ -367,14 +397,21 @@ var TRIP_PATH = "trips/jeongseon-2026";
   /* ---------- state & storage ---------- */
   var LOCAL_KEY = "jeongseon-trip-v1";
   var state = null, mode = "local", ref = null, connected = false, updatedAt = 0;
-  var pendingRender = false;
+  var pendingRender = false, migrating = false;
 
   function normalize(v) {
     v = v || {};
-    return { settings: v.settings || { people: 4, cars: 1 }, slots: v.slots || {}, costs: v.costs || {}, checks: v.checks || {} };
+    return { settings: v.settings || { people: 4, cars: 1 }, slots: v.slots || {}, costs: v.costs || {}, checks: v.checks || {}, meta: v.meta || {} };
   }
   function loadLocal() {
-    try { var raw = localStorage.getItem(LOCAL_KEY); if (raw) return normalize(JSON.parse(raw)); } catch (e) {}
+    try {
+      var raw = localStorage.getItem(LOCAL_KEY);
+      if (raw) {
+        var st = normalize(JSON.parse(raw)), up = migrationUpdates(st);
+        if (up) { state = st; Object.keys(up).forEach(function (p) { setPath(p, up[p]); }); st = state; }
+        return st;
+      }
+    } catch (e) {}
     return seed();
   }
   function saveLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state)); } catch (e) {} }
@@ -712,10 +749,17 @@ var TRIP_PATH = "trips/jeongseon-2026";
       ref.on("value", function (snap) {
         var v = snap.val();
         if (!v || !v.slots) {
-          if (first) { first = false; var s = seed(); s.meta = { updatedAt: firebase.database.ServerValue.TIMESTAMP }; ref.set(s); }
+          if (first) { first = false; var s = seed(); s.meta.updatedAt = firebase.database.ServerValue.TIMESTAMP; ref.set(s); }
           return;
         }
         first = false;
+        var mig = migrationUpdates(v);
+        if (mig && !migrating) {
+          migrating = true;
+          mig["meta/updatedAt"] = firebase.database.ServerValue.TIMESTAMP;
+          ref.update(mig).then(function () { toast("새 일정으로 바꿨어요"); }).catch(function () { migrating = false; });
+          return;
+        }
         state = normalize(v);
         saveLocal();
         updatedAt = v.meta && v.meta.updatedAt || 0;
